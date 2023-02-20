@@ -14,6 +14,7 @@ import numpy as np
 
 # extra packages
 from time import sleep, strftime
+import matplotlib.pyplot as mp
 
 # set up path to web driver and call the path to driver variable
 PATH = "C:\Webdrivers\chromedriver.exe"
@@ -28,11 +29,9 @@ departure = 'CHI'  # Chicago
 arrival = 'MIA'  # Miami
 departure_date = '2023-05-05'  # YYYY-MM-DD
 arrival_date = '2023-05-10'
-flexibility_option = "flexible"  # for +/= [1,3] days
-number_of_days = "3days"  # can be 1-3 days
 
 # get Kayak webpage and open
-kayak = f"https://www.kayak.com/flights/{departure}-{arrival}/{departure_date}-{flexibility_option}-{number_of_days}/{arrival_date}-{flexibility_option}-{number_of_days}"
+kayak = f"https://www.kayak.com/flights/{departure}-{arrival}/{departure_date}/{arrival_date}"
 driver.get(kayak)
 print(driver.title)
 sleep(10)
@@ -40,8 +39,9 @@ sleep(10)
 
 # function to load more page results
 def load_more():
-    i = 25
+    i = 5
     # static page
+    more_results = '//a[@class = "moreButton"]'
     while i > 0:
         try:
             stat_load = driver.find_element("xpath", more_results)
@@ -64,6 +64,7 @@ def load_more():
         except:
             print("Finished Load more")
             break
+
 
 # call function
 load_more()
@@ -103,7 +104,7 @@ regex_price = re.compile(".*-mb-aE-*.")
 prices = soup.find_all('span', attrs={'id': regex_price})
 price = []
 for div in prices:
-    price.append(div.getText().strip("\n")[:-1])
+    price.append(div.getText().strip("\n$")[:-1])
 
 # am or pr
 meridies = soup.find_all('span', attrs={'class': 'time-meridiem meridiem'})
@@ -131,7 +132,6 @@ meridiem = meridiem.reshape(int(len(meridiem) / 4), 4)
 # set max_columns to see full size
 pd.set_option('display.max_columns', None)
 
-
 # using pandas to construct dataframe.
 # loops over certain data inorder to line up flight information.
 df = pd.DataFrame({"origin": departure,
@@ -140,8 +140,8 @@ df = pd.DataFrame({"origin": departure,
                    "layovers_d": [m for m in layover[:, 1]],
                    "airline_o": [m for m in airline[:, 0]],
                    "airline_d": [m for m in airline[:, 1]],
-                   "startdate": departure_date,
-                   "enddate": arrival_date,
+                   "startdate": departure,
+                   "enddate": arrival,
                    "price": price,
                    "currency": "USD",
                    "deptime_o": [m + str(n) for m, n in zip(departure_time[:, 0], meridiem[:, 0])],
@@ -151,3 +151,7 @@ df = pd.DataFrame({"origin": departure,
                    })
 
 print(df.head())
+
+df.sort_values('price', ascending=True, inplace=True)
+df.plot(x="price", y="deptime_o", kind="scatter")
+mp.show()
