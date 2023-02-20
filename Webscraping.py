@@ -32,7 +32,6 @@ flexibility_option = "flexible"  # for +/= [1,3] days
 number_of_days = "3days"  # can be 1-3 days
 
 # get Kayak webpage and open
-
 kayak = f"https://www.kayak.com/flights/{departure}-{arrival}/{departure_date}-{flexibility_option}-{number_of_days}/{arrival_date}-{flexibility_option}-{number_of_days}"
 driver.get(kayak)
 print(driver.title)
@@ -41,10 +40,8 @@ sleep(10)
 
 # function to load more page results
 def load_more():
-
-    # regex_button = re.compile('.*show-more-button*.')
-    more_results = '//a[@class = "moreButton"]'
     i = 25
+    # static page
     while i > 0:
         try:
             stat_load = driver.find_element("xpath", more_results)
@@ -55,6 +52,7 @@ def load_more():
         except:
             print("None static Xpath")
             break
+    # dynamic page
     while i > 0:
         try:
             dynamic_results = '/html/body/div[1]/div[1]/main/div/div[2]/div[2]/div/div[2]/div[1]/div[3]/div[1]/div/div/div'
@@ -67,10 +65,12 @@ def load_more():
             print("Finished Load more")
             break
 
-
+# call function
 load_more()
 
 soup = BeautifulSoup(driver.page_source, 'lxml')
+
+# begin scraping data once function completes
 
 # depart times
 dep_times = soup.find_all('span', attrs={'class': 'depart-time base-time'})
@@ -111,6 +111,8 @@ meridiem = []
 for div in meridies:
     meridiem.append(div.getText())
 
+# format data such as splitting and matching flight times and dates.
+
 airline = np.asarray(airline)
 airline = airline.reshape(int(len(airline) / 2), 2)
 
@@ -126,8 +128,12 @@ arrival_time = arrival_time.reshape(int(len(arrival_time) / 2), 2)
 meridiem = np.asarray(meridiem)
 meridiem = meridiem.reshape(int(len(meridiem) / 4), 4)
 
+# set max_columns to see full size
 pd.set_option('display.max_columns', None)
 
+
+# using pandas to construct dataframe.
+# loops over certain data inorder to line up flight information.
 df = pd.DataFrame({"origin": departure,
                    "destination": arrival,
                    "layovers_o": [m for m in layover[:, 0]],
