@@ -1,4 +1,5 @@
-The goal of this project was to create a webscraper in python that would pull data from Kayak.com
+The goal of this project was to create a webscraper in python that would pull data from Kayak.com 
+Once the data is scraped it is organzied in a dataframe for later analysis such as finding the best time fly when related to price.
 
 The code uses selenium and beautiful soup to pull data from the desired webpage.
 we begin by setting up selenium and defining departures, dates, etc to send to the link we will explore.
