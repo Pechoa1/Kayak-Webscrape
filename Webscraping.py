@@ -14,7 +14,6 @@ import numpy as np
 
 # extra packages
 from time import sleep, strftime
-import matplotlib.pyplot as mp
 
 # set up path to web driver and call the path to driver variable
 PATH = "C:\Webdrivers\chromedriver.exe"
@@ -52,7 +51,7 @@ def load_more():
         except:
             print("None static Xpath")
             break
-    # dynamic page
+    # dynamic page - Need to implement new function if dynamic == True
     while i > 0:
         try:
             dynamic_results = '/html/body/div[1]/div[1]/main/div/div[2]/div[2]/div/div[2]/div[1]/div[3]/div[1]/div/div/div'
@@ -69,10 +68,10 @@ def load_more():
 # call function
 load_more()
 
+# set up soup object
 soup = BeautifulSoup(driver.page_source, 'lxml')
 
 # begin scraping data once function completes
-
 # depart times
 dep_times = soup.find_all('span', attrs={'class': 'depart-time base-time'})
 departure_time = []
@@ -151,7 +150,3 @@ df = pd.DataFrame({"origin": departure,
                    })
 
 print(df.head())
-
-df.sort_values('price', ascending=True, inplace=True)
-df.plot(x="price", y="deptime_o", kind="scatter")
-mp.show()
